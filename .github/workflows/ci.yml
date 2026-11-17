@@ -1,0 +1,20 @@
+name: Build and test Nginx
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build image
+        run: docker build -t aca-nginx:ci .
+      - name: Run and test
+        run: |
+          docker run -d --name web -p 8080:80 aca-nginx:ci
+          for i in 1 2 3 4 5; do
+            curl --fail http://localhost:8080 && exit 0
+            sleep 2
+          done
+          exit 1
